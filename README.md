@@ -56,3 +56,81 @@ scrollview   最上面的一个控件  加这2个属性
 android:focusable="true"
 android:focusableInTouchMode="true" 
 ```
+9.Imageloader框架加载图片及时释放Bitmap
+```
+public class ReleaseBitmap implements ImageLoadingListener {
+
+	private List<Bitmap> bitmaps;
+
+	public ReleaseBitmap() {
+		// TODO Auto-generated constructor stub
+		bitmaps = new ArrayList<Bitmap>();
+	}
+
+	@Override
+	public void onLoadingCancelled(String arg0, View arg1) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onLoadingComplete(String imageUri, View view, Bitmap bitmap) {
+		// TODO Auto-generated method stub
+		bitmaps.add(bitmap);
+	}
+
+	@Override
+	public void onLoadingFailed(String arg0, View arg1, FailReason arg2) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onLoadingStarted(String arg0, View arg1) {
+		// TODO Auto-generated method stub
+
+	}
+
+	public void clear() {
+		if (bitmaps.size() > 0) {
+			for (int i = 0; i < bitmaps.size(); i++) {
+				Bitmap b = bitmaps.get(i);
+				if (b != null && !b.isRecycled()) {
+					b.recycle();
+					b = null;
+					bitmaps.remove(i);
+				}
+			}
+		}
+	}
+}
+```
+只需要在加载的时候把releaseBitmap类传进去就OK了
+```
+ReleaseBitmap releaseBitmap = new ReleaseBitmap();
+mImageLoader.displayImage(url, imageview, options, releaseBitmap);
+```
+在activity销毁的时候调用releaseBitmap.clear();<br/>
+adapter也可以写哦，在adapter写一个clear函数
+```
+public void clear(){
+		releaseBitmap.clear();
+}
+```
+在activity销毁的时候调用adapter.clear();<br/>
+
+10.ViewPager 切换报错 The specified child already has a parent. You must call removeView() on the child's <br/>
+在adapter里如下面代码这么写即可解决
+```
+@Override
+public Object instantiateItem(ViewGroup view, int position) {
+  if(list.get(position).getParent()==null){
+    view.addView(list.get(position));
+  }else{
+    ((ViewGroup)list.get(position).getParent()).removeView(list.get(position));
+                view.addView(list.get(position));
+  }
+    return list.get(position);
+}
+```
+
