@@ -197,3 +197,123 @@ public class LollipopBitmapMemoryCacheParamsSupplier implements Supplier {
 14.轮播banner https://github.com/youth5201314/banner
 
 14.图片压缩利器 https://tinypng.com/
+
+15.微信支付的坑,签名的顺序一定要按照它的来,搞乱一个就不行了,注意金钱单位为分。
+```
+public void wxpay(PayInfo payInfos){
+	final String appid = WxConfig.WX_APPID;
+	final String mch_id = WxConfig.PARTNER;
+	final String nonce_str = genNonceStr();
+	String body = payInfos.getBody();
+	String out_trade_no = payInfos.getOut_trade_no();
+	String total_fee = payInfos.getTotal_fee()+"";
+	String spbill_create_ip = CommonUtil.getLocalHostIp();
+	String notify_url = payInfos.getNotify_url();
+	String trade_type = "APP";
+	
+	
+	List<NameValuePair> packageParams = new LinkedList<NameValuePair>();
+	packageParams.add(new BasicNameValuePair("appid", appid));
+	packageParams.add(new BasicNameValuePair("body", body));
+	packageParams.add(new BasicNameValuePair("mch_id", mch_id));
+	packageParams.add(new BasicNameValuePair("nonce_str", nonce_str));
+	packageParams.add(new BasicNameValuePair("notify_url", notify_url));
+	packageParams.add(new BasicNameValuePair("out_trade_no", out_trade_no));
+	packageParams.add(new BasicNameValuePair("spbill_create_ip", spbill_create_ip));
+	packageParams.add(new BasicNameValuePair("total_fee", total_fee));
+	packageParams.add(new BasicNameValuePair("trade_type", trade_type));
+	// 生成package 
+	StringBuilder sb = new StringBuilder(); 
+	 
+	for (int i = 0; i < packageParams.size(); i++) { 
+	  sb.append(packageParams.get(i).getName()); 
+	  sb.append('='); 
+	  sb.append(packageParams.get(i).getValue()); 
+	  sb.append('&');   
+	} 
+	sb.append("key="); 
+	sb.append(WxConfig.PARTNER_KEY);
+	// 进行md5摘要前，params内容为原始内容，未经过url encode处理 
+	String packageSign = MD5.getMessageDigest(sb.toString().getBytes()).toUpperCase(); 
+	packageParams.add(new BasicNameValuePair("sign", packageSign));
+	HttpForRequest.wxPay(buildXMLUnifiedOrder(packageParams), new RequestCallBack<String>() {
+				
+			@Override
+			public void onSuccess(ResponseInfo<String> arg0) {
+				// TODO Auto-generated method stub
+				dismissProgressDialog();
+				String return_code = null;
+				String return_msg = null;
+				String prepay_id = null;
+				String sign = null;
+				try {
+					XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+		            XmlPullParser pull = factory.newPullParser();
+		            pull.setInput(new StringReader(arg0.result));
+		            int type=pull.getEventType();
+		    		while(type!=XmlPullParser.END_DOCUMENT){
+		    			String nodeName =pull.getName();
+		    			if("return_code".equals(nodeName)){
+	    					return_code = pull.nextText();
+	    				}
+		    			if("return_msg".equals(nodeName)){
+		    				return_msg = pull.nextText();
+		    			}
+		    			if("prepay_id".equals(nodeName)){
+		    				prepay_id = pull.nextText();
+		    			}
+		    			type=pull.next();
+		    		}
+				} catch (Exception e) {
+					// TODO: handle exception
+					e.printStackTrace();
+				}
+				String timeStamp = String.valueOf(genTimeStamp());
+				
+				if(return_code.equals("SUCCESS")&&return_msg.equals("OK")){
+					PayReq req = new PayReq();
+					req.appId			= appid;
+					req.partnerId		= mch_id;
+					req.prepayId		= prepay_id;
+					req.nonceStr		= nonce_str;
+					req.timeStamp		= timeStamp;
+					req.packageValue	= "Sign=WXPay";
+					
+					List<NameValuePair> packageParams = new LinkedList<NameValuePair>();
+					packageParams.add(new BasicNameValuePair("appid", req.appId));
+					packageParams.add(new BasicNameValuePair("noncestr", req.nonceStr));
+					packageParams.add(new BasicNameValuePair("package", "Sign=WXPay"));
+					packageParams.add(new BasicNameValuePair("partnerid", req.partnerId));
+					packageParams.add(new BasicNameValuePair("prepayid", req.prepayId));
+					packageParams.add(new BasicNameValuePair("timestamp", req.timeStamp));
+					// 生成package 
+					StringBuilder sb = new StringBuilder(); 
+					 
+					for (int i = 0; i < packageParams.size(); i++) { 
+					  sb.append(packageParams.get(i).getName()); 
+					  sb.append('='); 
+					  sb.append(packageParams.get(i).getValue()); 
+					  sb.append('&');   
+					} 
+					sb.append("key="); 
+					sb.append(WxConfig.PARTNER_KEY);
+					sign = MD5.getMessageDigest(sb.toString().getBytes()).toUpperCase(); ;
+					req.sign	= sign;
+					// 在支付之前，如果应用没有注册到微信，应该先调用IWXMsg.registerApp将应用注册到微信
+					api.sendReq(req);
+				}else{
+					showToast("微信支付失败！");
+				}
+				
+			}
+			
+			@Override
+			public void onFailure(HttpException arg0, String arg1) {
+				// TODO Auto-generated method stub
+				dismissProgressDialog();
+				showToast("微信支付失败！");
+			}
+	});
+}
+```
+
