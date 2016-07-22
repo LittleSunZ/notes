@@ -136,7 +136,7 @@ public Object instantiateItem(ViewGroup view, int position) {
 }
 ```
 
-11.Fresco图片加载框架,Facebook出品，必然强大。<br/>
+11.Fresco图片框架,Facebook出品，必然强大。<br/>
 Fresco 中设计有一个叫做 image pipeline的模块。它负责从网络，从本地文件系统，本地资源加载图片。为了最大限度节省空间和CPU时间，它含有3级缓存设计（2级内存，1级文件）。<br/>
 Fresco 中设计有一个叫做 Drawees 模块，方便地显示loading图，当图片不再显示在屏幕上时，及时地释放内存和空间占用。<br/>
 Fresco 默认配置是在5.0系统以下自动回收不显示图片内存。5.0以上的话需要配置<br/>
@@ -187,7 +187,8 @@ public class LollipopBitmapMemoryCacheParamsSupplier implements Supplier {
         }
     }
 }
-
+//混淆
+-dontwarn com.facebook.**
 ```
 
 12.github框架排名前100源码 http://www.devstore.cn/essay/essayInfo/5839.html
@@ -315,5 +316,77 @@ public void wxpay(PayInfo payInfos){
 			}
 	});
 }
+```
+16.ScrollView中包含Listview的时候,要给Listview重新计算下高度,注意要在setAdapter()之后
+```
+/***
+ * 给list重新设置高度在scrollview显示
+ * 
+ * @param listView
+ */
+public static void setListViewHeightBasedOnChildren(ListView listView) {
+	ListAdapter listAdapter = listView.getAdapter();
+	if (listAdapter == null) {
+		return;
+	}
+	int totalHeight = 0;
+	for (int i = 0; i < listAdapter.getCount(); i++) {
+		View listItem = listAdapter.getView(i, null, listView);
+		listItem.measure(0, 0);
+		totalHeight += listItem.getMeasuredHeight();
+	}
+	ViewGroup.LayoutParams params = listView.getLayoutParams();
+	params.height = totalHeight
+			+ (listView.getDividerHeight() * (listAdapter.getCount() - 1));
+	listView.setLayoutParams(params);
+}
+```
+
+17.当项目中有webView有JS要跟activity交互时,
+```
+webView.addJavascriptInterface(new JsInterface(), "aaa");
+```
+混淆的时候记得加上,包名.MainActivity是这个类的路径,JsInterface是你的类名
+```
+-keepattributes *Annotation*
+-keepattributes *JavascriptInterface*
+-keepclassmembers  class 包名.MainActivity$JsInterface  {
+   public *;
+}
+```
+
+18.Fresco跟百度的SO文件冲突了,启动的时候会报这行的错
+```
+SDKInitializer.initialize(this);
+```
+解决办法是把所有类型CPU的SO文件都拷贝到libs下,但是有些库没有这么多SO文件的时候，最好的办法是在build.gradle加上
+```
+ndk {
+    abiFilters "armeabi", "armeabi-v7a", "x86", "mips"
+}
+```
+
+```
+android {
+    compileSdkVersion 21
+    buildToolsVersion "22.0.1"
+
+    defaultConfig {
+        applicationId "com.test.app"
+        minSdkVersion 10
+        targetSdkVersion 21
+        multiDexEnabled true
+
+        ndk {
+            abiFilters "armeabi", "armeabi-v7a", "x86", "mips"
+        }
+    }
+}
+```
+意为系统么有固定只匹配这几个类型的so文件，没有匹配到就找默认的：armeabi或者armeabi-v7a
+
+19.Fresco Gif播放 0.9.0以上需要依赖
+```
+compile 'com.facebook.fresco:animated-gif:0.10.0'
 ```
 
