@@ -190,4 +190,10 @@ public class LollipopBitmapMemoryCacheParamsSupplier implements Supplier {
 
 ```
 
+12.github框架排名前100源码 http://www.devstore.cn/essay/essayInfo/5839.html
 
+13.好用的相册选择器  https://github.com/wqandroid/wqgallery
+
+14.轮播banner https://github.com/youth5201314/banner
+
+14.图片压缩利器 https://tinypng.com/
