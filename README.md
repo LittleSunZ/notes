@@ -44,8 +44,10 @@ private String getCurProcessName(Context context) {
     }
     return null;
 }
-
-if ("packageName".equals(getCurProcessName(this))) {
+```
+在application的onCreate里面这样判断即可
+```
+if ("你的包名".equals(getCurProcessName(this))) {
     SDKInitializer.initialize(this);
 }
 ```
@@ -133,4 +135,59 @@ public Object instantiateItem(ViewGroup view, int position) {
     return list.get(position);
 }
 ```
+
+11.Fresco图片加载框架,Facebook出品，必然强大。<br/>
+Fresco 中设计有一个叫做 image pipeline的模块。它负责从网络，从本地文件系统，本地资源加载图片。为了最大限度节省空间和CPU时间，它含有3级缓存设计（2级内存，1级文件）。<br/>
+Fresco 中设计有一个叫做 Drawees 模块，方便地显示loading图，当图片不再显示在屏幕上时，及时地释放内存和空间占用。<br/>
+Fresco 默认配置是在5.0系统以下自动回收不显示图片内存。5.0以上的话需要配置<br/>
+在application的onCreate初始化配置<br/>
+```
+ImagePipelineConfig config = ImagePipelineConfig.newBuilder(this)
+        .setBitmapMemoryCacheParamsSupplier(new LollipopBitmapMemoryCacheParamsSupplier((ActivityManager) getSystemService(Context.ACTIVITY_SERVICE)))
+        .build();
+Fresco.initialize(this,config);
+
+public class LollipopBitmapMemoryCacheParamsSupplier implements Supplier {
+
+    private ActivityManager activityManager;
+
+    public LollipopBitmapMemoryCacheParamsSupplier(ActivityManager activityManager) {
+        this.activityManager = activityManager;
+    }
+
+    @Override
+    public MemoryCacheParams get() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            return new MemoryCacheParams(getMaxCacheSize(), 56, Integer.MAX_VALUE,
+                    Integer.MAX_VALUE,
+                    Integer.MAX_VALUE);
+        } else {
+            return new MemoryCacheParams(
+                    getMaxCacheSize(),
+                    256,
+                    Integer.MAX_VALUE,
+                    Integer.MAX_VALUE,
+                    Integer.MAX_VALUE);
+        }
+    }
+
+    private int getMaxCacheSize() {
+        final int maxMemory = Math.min(activityManager.getMemoryClass() * ByteConstants.MB, Integer.MAX_VALUE);
+
+        if (maxMemory < 32 * ByteConstants.MB) {
+            return 4 * ByteConstants.MB;
+        } else if (maxMemory < 64 * ByteConstants.MB) {
+            return 6 * ByteConstants.MB;
+        } else {
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.GINGERBREAD) {
+                return 8 * ByteConstants.MB;
+            } else {
+                return maxMemory / 4;
+            }
+        }
+    }
+}
+
+```
+
 
