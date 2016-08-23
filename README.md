@@ -390,6 +390,6 @@ android {
 compile 'com.facebook.fresco:animated-gif:0.10.0'
 ```
 
-20.[Android技术专题]应用开发进阶必经之路之性能优化
+20.[Android技术专题]应用开发进阶必经之路之性能优化<br/>
 https://zhuanlan.zhihu.com/p/22103855
 
