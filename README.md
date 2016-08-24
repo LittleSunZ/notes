@@ -393,3 +393,5 @@ compile 'com.facebook.fresco:animated-gif:0.10.0'
 20.[Android技术专题]应用开发进阶必经之路之性能优化<br/>
 https://zhuanlan.zhihu.com/p/22103855
 
+21.【腾讯Bugly干货分享】一步一步实现Android的MVP框架<br/>
+https://zhuanlan.zhihu.com/p/21771642
