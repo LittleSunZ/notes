@@ -395,3 +395,6 @@ https://zhuanlan.zhihu.com/p/22103855
 
 21.【腾讯Bugly干货分享】一步一步实现Android的MVP框架<br/>
 https://zhuanlan.zhihu.com/p/21771642
+
+22.2016面试宝典<br/>
+https://www.zhihu.com/question/37483907#answer-43318097
