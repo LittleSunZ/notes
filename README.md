@@ -398,3 +398,51 @@ https://zhuanlan.zhihu.com/p/21771642
 
 22.2016面试宝典<br/>
 https://www.zhihu.com/question/37483907#answer-43318097
+
+23.滑动ViewPager引起swiperefreshlayout刷新的冲突<br/>
+ViewPager是Android中提供的页面切换的控件，SwipeRefreshLayout是Android提供的下拉刷新控件，通过SwipeRefreshLayout可以很简单的实现下拉刷新的功能，但是如果SwipeRefreshLayout的子view中如果包含了ViewPager，会发现滑动ViewPager的时候，很容易引起SwipeRefreshLayout的下拉刷新操作为了解决这个冲突可以这样实现
+```
+import android.content.Context;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.AttributeSet;
+import android.view.MotionEvent;
+import android.view.ViewConfiguration;
+
+/**
+ * @brief 只在竖直方向才能下拉刷新的控件
+ */
+public class VerticalSwipeRefreshLayout extends SwipeRefreshLayout {
+
+    private int mTouchSlop;
+    // 上一次触摸时的X坐标
+    private float mPrevX;
+
+    public VerticalSwipeRefreshLayout(Context context, AttributeSet attrs) {
+        super(context, attrs);
+
+        // 触发移动事件的最短距离，如果小于这个距离就不触发移动控件
+        mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
+    }
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent event) {
+
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                mPrevX = event.getX();
+                break;
+
+            case MotionEvent.ACTION_MOVE:
+                final float eventX = event.getX();
+                float xDiff = Math.abs(eventX - mPrevX);
+                // Log.d("refresh" ,"move----" + eventX + "   " + mPrevX + "   " + mTouchSlop);
+                // 增加60的容差，让下拉刷新在竖直滑动时就可以触发
+                if (xDiff > mTouchSlop + 60) {
+                    return false;
+                }
+        }
+
+        return super.onInterceptTouchEvent(event);
+    }
+}
+```
