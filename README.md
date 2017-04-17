@@ -446,3 +446,13 @@ public class VerticalSwipeRefreshLayout extends SwipeRefreshLayout {
     }
 }
 ```
+24
+WebView内包含https图片地址不显示的情况
+```
+mWebview.getSettings().setJavaScriptEnabled(true);//启用js
+mWebview.getSettings().setBlockNetworkImage(false);
+mWebview.getSettings().setDomStorageEnabled(true);
+if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+	mWebview.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+}
+```
