@@ -401,6 +401,8 @@ https://www.zhihu.com/question/37483907#answer-43318097
 
 23.滑动ViewPager引起swiperefreshlayout刷新的冲突<br/>
 ViewPager是Android中提供的页面切换的控件，SwipeRefreshLayout是Android提供的下拉刷新控件，通过SwipeRefreshLayout可以很简单的实现下拉刷新的功能，但是如果SwipeRefreshLayout的子view中如果包含了ViewPager，会发现滑动ViewPager的时候，很容易引起SwipeRefreshLayout的下拉刷新操作为了解决这个冲突可以这样实现
+
+
 ```
 import android.content.Context;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -460,3 +462,7 @@ if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 25
 android上开源的酷炫的交互动画和视觉效果<br/>
 http://www.open-open.com/lib/view/open1411443332703.html
+
+26
+阴影.9图片制作网站<br/>
+http://inloop.github.io/shadow4android/
