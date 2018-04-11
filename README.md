@@ -466,3 +466,7 @@ http://www.open-open.com/lib/view/open1411443332703.html
 26
 阴影.9图片制作网站<br/>
 http://inloop.github.io/shadow4android/
+
+27
+pdf工具
+https://smallpdf.com/cn/pdf-to-jpg
