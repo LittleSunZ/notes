@@ -473,7 +473,7 @@ https://smallpdf.com/cn/pdf-to-jpg
 
 28
 手势缩放view ，xml把需要缩放的view放在ZoomView里面
-
+```
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -920,3 +920,4 @@ public class ZoomView extends FrameLayout {
         invalidate();
     }
 }
+```
